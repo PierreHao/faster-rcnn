@@ -135,12 +135,11 @@ class FaceModel():
 
 if __name__ == '__main__':
     #only to test if the FaceModel can work correctly
-    caffe_model_dir='/home/yzh/Documents/caffe_workspace/py-faster-rcnn/output/faster_rcnn_end2end/voc_2007_trainval/fc6_512_no_pool_iter_2000.caffemodel'
-    prototxt='/home/yzh/Documents/caffe_workspace/py-faster-rcnn/models/pascal_voc/ZF/fc6_512_no_pool/test.prototxt'
+    caffe_model_dir='/home/yzh/Documents/caffe_workspace/py-faster-rcnn/output/face_zf/voc_2007_trainval/ofc6_256_no_pool_SF_iter_60000.caffemodel'
+    prototxt='/home/yzh/Documents/caffe_workspace/py-faster-rcnn/models/pascal_voc/ZF/ofc6_256_no_pool_SF/test.prototxt'
     model=FaceModel(caffe_model_dir,prototxt=prototxt,cpu=1)
-    f=open('/home/yzh/rois.txt','w')
-    im, dets = model.forward('/home/yzh/wsxtest.jpg')
-    for i in model.net.blobs['rois'].data:
-        f.write(str(i)+'\n')
-    f.close()
+    im, dets = model.forward('/home/yzh/Documents/caffe_workspace/py-faster-rcnn/data/demo/001150.jpg')
+    score_thresh=0.75
+    cutted_dets=np.array([i for i in dets if i[-1]>score_thresh],dtype=int)
     #im.show()
+

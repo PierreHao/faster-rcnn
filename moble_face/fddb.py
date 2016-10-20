@@ -27,8 +27,8 @@ import caffe, cv2
 import argparse
 
 save_pic=0
-show=0
-cpu=1
+show=1
+cpu=0
 CONF_THRESH = 0.8
 print_thresh= 0.4
 
