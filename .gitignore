@@ -1,6 +1,5 @@
 *.pyc
 .ipynb_checkpoints
-data
 lib/build
 lib/pycocotools/_mask.c
 lib/pycocotools/_mask.so
@@ -12,3 +11,11 @@ caffe-fast-rcnn
 *.out
 *.pt
 .idea
+*.tar.*
+*.zip
+*.png
+*.jpg
+*.txt
+*.o
+data/*
+!data/fddb
