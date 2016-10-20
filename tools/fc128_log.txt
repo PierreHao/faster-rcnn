@@ -1,0 +1,2 @@
+/home/yzh/Documents/caffe_workspace/py-faster-rcnn/output/faster_rcnn_end2end/voc_2007_trainval/zf_fc128_iter_60000.caffemodel
+0.796751 201 0.804803
