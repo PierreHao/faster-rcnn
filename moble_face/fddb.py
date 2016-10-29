@@ -5,12 +5,12 @@
 # Copyright (c) 2015 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Ross Girshick
+# Rewrite by Zhihang Yuan
 # --------------------------------------------------------
 
 """
-Demo script showing detections in sample images.
+Run forward test for fddb
 
-See README.md for installation instructions before running.
 """
 import os, sys
 
@@ -27,13 +27,13 @@ import caffe, cv2
 import argparse
 
 save_pic=0
-show=1
-cpu=0
+show=0
+cpu=1
 CONF_THRESH = 0.8
 print_thresh= 0.4
 
-exp_name='ofc6_256_no_pool_SF'
-iterations=60000
+exp_name='conv41ofc_2'
+iterations=40000
 save_rst=1
 
 model='ZF'
@@ -199,5 +199,3 @@ if __name__ == '__main__':
         for l in f.readlines():
             if ' 200 ' in l or ' 201 ' in l:
                 print l
-
-

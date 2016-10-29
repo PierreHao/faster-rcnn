@@ -21,13 +21,13 @@ import multiprocessing as mp
 import cPickle
 import shutil
 
-exp_name='res2_2'
-pre_train_name='res2_2'
+exp_name='conv41ofc_2'
+pre_train_name='conv41ofc_2'
 use_last_train=1
-last_iter=10000
+last_iter=40000
 
 
-model='resnet'
+model='ZF'
 stage = []
 
 if model=='googlenet':
@@ -51,7 +51,7 @@ elif model=='resnet':
 net_name=model+'/'+exp_name
 stage.append(pretrained_model)
 
-max_iters=600000
+max_iters=80000
 
 def parse_args():
     """

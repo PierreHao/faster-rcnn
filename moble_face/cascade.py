@@ -131,6 +131,10 @@ class FaceModel():
             os.mkdir(os.path.join(cfg.DATA_DIR,'demo','out'))
         im.save(os.path.join(cfg.DATA_DIR,'demo','out',name))
 
+class CascadeModel():
+    def __init__(self):
+        pass
+
 
 if __name__ == '__main__':
     #only to test if the FaceModel can work correctly
