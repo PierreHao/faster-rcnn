@@ -18,7 +18,7 @@ import _init_paths
 from fast_rcnn.config import cfg
 from  face_detect import FaceModel
 import os,time
-import Image
+import Image,ImageDraw
 import numpy as np
 
 RPN_POST_NUM=50
@@ -32,6 +32,21 @@ default_stting={
     'input_size':600,
     'rpn_nms_thresh':0.5
 }
+
+
+def draw( im_path, dets, thresh=0.1):
+    """Draw detected bounding boxes."""
+    im = Image.open(im_path)
+    if len(dets) == 0:
+        return im
+    draw = ImageDraw.Draw(im)
+    for i in dets:
+        if i[-1]<thresh:continue
+        bbox = i[:4]
+        score = i[-1]
+        draw.rectangle(list(bbox.astype(np.int32)))
+        draw.text(list(bbox[:2].astype(int)), str(score))
+    return im
 
 class CascadeModel():
     def __init__(self):
@@ -52,16 +67,22 @@ class CascadeModel():
         dets2=np.minimum(im.size,dets2)
         return np.concatenate((dets1,dets2),1).astype(np.int32)
 
-    def _gen_im(self,im,dets):
+    def _gen_im(self,im,dets,shift):
+        """generate the im and shift of the sub_im, then save them to temp dir
+        im:Image
+        dets:raw_dets
+        shift:a list [shiftx,shifty]
+        """
         im_dirs=[]
-        if len(dets)==0:return im_dirs
+        if len(dets)==0:return im_dirs,[]
         dets=self._enlarge_dets(dets[:,:4],im)
+        shifts = dets[:, :2] + shift
         for i,det in enumerate(dets):
             crop_im=im.crop(det)
             direction='temp/temp%f.jpg'%(time.time(),)
             crop_im.save(direction)
             im_dirs.append(direction)
-        return im_dirs
+        return im_dirs,shifts
 
     def _clear_temp(self,im_name):
         if im_name[:4]=='temp':
@@ -73,28 +94,32 @@ class CascadeModel():
 
     def forward(self,image_path):
         images=[image_path]
-        ims=[]
+        shifts=[(0,0)]
+        final_dets=[]
         for i,model in enumerate(self.models):
             setting=self.settings[i]
             cfg.TEST.RPN_POST_NMS_TOP_N = setting['rpn_post_num']
             cfg.TEST.SCALES = (setting['input_size'],)
             cfg.TEST.RPN_NMS_THRESH=(setting['rpn_nms_thresh'])
             new_images=[]
-            if i==len(self.models)-1:
-                model.vis=1
-            for path in images:
+            new_shifts=[]
+            for path,shift in zip(images,shifts):
                 im,dets=model.forward(path)
-                new_images+=self._gen_im(im,dets)
                 self._clear_temp(path)
                 if i == len(self.models) - 1:
-                    ims.append(im)
+                    if len(dets)!=0:
+                        final_dets.append(dets+np.hstack([shift,shift,[0]]))
+                else:
+                    gen_ims, gen_shifts = self._gen_im(im, dets, shift)
+                    new_images += gen_ims
+                    new_shifts += list(gen_shifts)
+                im.close()
             images=new_images
+            shifts=new_shifts
+        if final_dets!=[]:
+            final_dets=np.concatenate(final_dets)
         self._clear_all_temp()
-        return ims
-
-
-
-
+        return final_dets
 
 
 if __name__ == '__main__':
@@ -104,7 +129,7 @@ if __name__ == '__main__':
     model=CascadeModel()
     model.add_facemodel(caffe_model_dir,prototxt=prototxt)
     setting2={
-        'rpn_post_num':50,
+        'rpn_post_num':10,
         'input_size':100,
         'rpn_nms_thresh':0.5
     }
@@ -113,7 +138,9 @@ if __name__ == '__main__':
     for im_name in os.listdir(dir_name):
         if '.jpg' not in im_name:
             continue
-        ims=model.forward (dir_name+im_name)
-        for im in ims:
-            im.show()
+        dets=model.forward (dir_name+im_name)
+        if dets==[]:
+            continue
+        im=draw(dir_name+im_name,dets)
+        im.save(dir_name+'../otureo_out/'+im_name)
 
