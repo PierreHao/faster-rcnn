@@ -29,16 +29,6 @@ INPUT_SIZE=600
 cfg.TEST.RPN_POST_NMS_TOP_N = RPN_POST_NUM
 cfg.TEST.SCALES = (INPUT_SIZE,)
 
-CLASSES = ('__background__',
-           'face')
-
-NETS = {'vgg16': ('VGG16',
-                  'VGG16_faster_rcnn_final.caffemodel'),
-        'zf': ('ZF',
-               'ZF_faster_rcnn_final.caffemodel'),
-        'face': ('VGG16',
-                 "VGG16_faster_rcnn_face.caffemodel")}
-
 class FaceModel():
     def __init__(self,caffemodel,prototxt,gpu_id=0,cpu=0):
         """
@@ -80,20 +70,20 @@ class FaceModel():
         im_name=image_path
         print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         print 'Run forward for {}'.format(im_name)
-        im,dets=self._detect(self.net, im_name)
-        if self.vis:
+        im,dets=self._detect(im_name)
+        if self.vis and len(dets)>0:
             im=self._vis_detection(im,dets)
         else:
             im=Image.fromarray(im[:, :, (2, 1, 0)])
         return im,dets
 
-    def _detect(self,net,im_name):
-        """Detect object classes in an image using pre-computed object proposals.
+    def _detect(self,im_name):
+        """Detect face in an image,return Image and dets [num_bbox,5(box,score)]
         """
         im = cv2.imread(im_name)
         timer = Timer()
         timer.tic()
-        # Detect all object classes and regress object bounds, scores[R,2],boxes[R,8],including the background
+        # scores[R,2],boxes[R,8],including the background
         scores, boxes = im_detect(self.net, im)
         timer.toc()
         print ('Detection took {:.3f}s for '
