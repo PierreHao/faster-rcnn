@@ -29,7 +29,7 @@ cfg.TEST.RPN_NMS_THRESH = 0.7
 
 default_stting={
     'rpn_post_num':50,
-    'input_size':600,
+    'input_size':400,
     'rpn_nms_thresh':0.5
 }
 
@@ -54,7 +54,7 @@ class CascadeModel():
         self.settings=[]
 
     def add_facemodel(self,caffemodel,prototxt,setting=default_stting):
-        self.models.append(FaceModel(caffemodel,prototxt,cpu=1))
+        self.models.append(FaceModel(caffemodel,prototxt))
         self.settings.append(setting)
 
     def _enlarge_dets(self,dets,im,factor=1.8):

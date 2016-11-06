@@ -25,7 +25,7 @@ import caffe, os, sys, cv2
 import argparse
 
 RPN_POST_NUM=50
-INPUT_SIZE=600
+INPUT_SIZE=400
 cfg.TEST.RPN_POST_NMS_TOP_N = RPN_POST_NUM
 cfg.TEST.SCALES = (INPUT_SIZE,)
 
@@ -126,7 +126,15 @@ if __name__ == '__main__':
     #only to test if the FaceModel can work correctly
     caffe_model_dir='/home/yzh/Documents/caffe_workspace/py-faster-rcnn/output/faster_rcnn_end2end/voc_2007_trainval/fc6_512_no_pool_iter_60000.caffemodel'
     prototxt='/home/yzh/Documents/caffe_workspace/py-faster-rcnn/models/pascal_voc/ZF/fc6_512_no_pool/test.prototxt'
-    model=FaceModel(caffe_model_dir,prototxt=prototxt,cpu=1)
+    model=FaceModel(caffe_model_dir,prototxt=prototxt)
     model.vis=1
-    im, dets = model.forward ('/home/yzh/Documents/caffe_workspace/py-faster-rcnn/data/demo/1.jpg')
-    im.show()
+
+    dir_name = '/home/yzh/Documents/caffe_workspace/py-faster-rcnn/data/demo/otureo/'
+    for im_name in os.listdir(dir_name):
+        if '.jpg' not in im_name:
+            continue
+        im,dets = model.forward(dir_name + im_name)
+        if dets == []:
+            continue
+        im.save(dir_name + '../otureo_out2/' + im_name)
+
